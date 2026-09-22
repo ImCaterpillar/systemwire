@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>内网安全智能体平台 · Demo 演示方案</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2306080c'/%3E%3Cpath d='M16 5l9 4v7c0 6-3.8 9.8-9 11-5.2-1.2-9-5-9-11V9z' fill='none' stroke='%233984ff' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3.2' fill='%233984ff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<style>
+  :root{
+    --bg:#06080c; --panel:#0b0e14; --panel2:#080d15; --line:#1e2c45; --line2:#294a79;
+    --accent:#3984ff; --text:#a1aec2; --text-strong:#e8eefc; --text-dim:#5c6b85; --text-faint:#3a465c;
+    --green:#34d399; --amber:#f59e0b; --red:#ef4444; --purple:#a78bfa; --cyan:#22d3ee;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    font-size:14px; line-height:1.8; -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:"IBM Plex Mono",ui-monospace,Consolas,monospace;}
+  ::selection{background:rgba(57,132,255,.35);}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+
+  /* ===== 顶部导航 ===== */
+  nav{
+    position:sticky; top:0; z-index:50; background:rgba(6,8,12,.86); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex;align-items:center;gap:20px;height:52px;flex-wrap:wrap;}
+  .nav-brand{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-strong);font-weight:600;white-space:nowrap;}
+  .nav-brand svg{width:18px;height:18px;}
+  .nav-links{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto;}
+  .nav-links a{
+    color:var(--text-dim); text-decoration:none; font-size:12px; padding:5px 10px; border-radius:6px; transition:all .15s; white-space:nowrap;
+  }
+  .nav-links a:hover{color:var(--text-strong); background:rgba(57,132,255,.12);}
+  .nav-badge{margin-left:4px;font-size:10px;color:var(--green);border:1px solid rgba(52,211,153,.4);padding:2px 8px;border-radius:10px;letter-spacing:1px;white-space:nowrap;}
+
+  /* ===== Hero ===== */
+  header.hero{padding:72px 0 48px;position:relative;overflow:hidden;}
+  header.hero::before{
+    content:""; position:absolute; inset:0;
+    background:
+      radial-gradient(800px 300px at 20% 0%, rgba(57,132,255,.12), transparent 60%),
+      radial-gradient(600px 260px at 85% 10%, rgba(52,211,153,.05), transparent 60%);
+    pointer-events:none;
+  }
+  header.hero::after{
+    content:""; position:absolute; inset:0;
+    background-image:linear-gradient(rgba(30,44,69,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(30,44,69,.16) 1px,transparent 1px);
+    background-size:44px 44px; mask-image:radial-gradient(700px 300px at 30% 0%, #000 0%, transparent 75%);
+    pointer-events:none;
+  }
+  .kicker{font-size:10px;letter-spacing:3px;color:var(--accent);font-family:"IBM Plex Mono",monospace;margin-bottom:14px;position:relative;}
+  .hero h1{
+    font-size:40px;line-height:1.25;color:var(--text-strong);font-weight:700;letter-spacing:-.5px;position:relative;
+  }
+  .hero .sub{margin-top:16px;font-size:16px;color:var(--text);max-width:720px;position:relative;}
+  .hero .meta{margin-top:28px;display:flex;gap:10px;flex-wrap:wrap;position:relative;}
+  .chip{font-size:11px;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:4px 12px;background:var(--panel);}
+  .chip b{color:var(--text-strong);font-weight:600;}
+
+  /* ===== 章节 ===== */
+  section{padding:48px 0;border-top:1px solid var(--line);}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:26px;}
+  .sec-no{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--accent);letter-spacing:2px;}
+  .sec-title{font-size:22px;color:var(--text-strong);font-weight:700;}
+  .sec-en{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--text-faint);letter-spacing:2px;text-transform:uppercase;}
+
+  /* 概览三卡 */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media (max-width:900px){.grid3{grid-template-columns:1fr;}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;}
+  .card:hover{border-color:var(--line2);}
+  .card .ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+  .card h3{font-size:15px;color:var(--text-strong);font-weight:600;margin-bottom:8px;}
+  .card p{font-size:12.5px;color:var(--text);}
+  .card .tag{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:1.5px;color:var(--accent);display:block;margin-bottom:6px;}
+
+  /* 能力三卡 */
+  .cap{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;}
+  .cap-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .cap-head .t{font-size:14px;color:var(--text-strong);font-weight:600;}
+  .cap-head .cmd{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--text-dim);}
+  .cap-body{padding:16px 18px;flex:1;}
+  .cap-body .flow{font-size:12px;color:var(--text);}
+  .cap-body .flow div{padding:5px 0;border-left:2px solid var(--line2);padding-left:12px;margin:6px 0;}
+  .cap-body .flow .k{color:var(--green);}
+  .cap .badge{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:1px;border-radius:4px;padding:2px 7px;}
+
+  /* 演示脚本 */
+  .script{position:relative;}
+  .script-item{display:grid;grid-template-columns:110px 1fr;gap:20px;padding:16px 0;border-bottom:1px solid var(--line);}
+  @media (max-width:700px){.script-item{grid-template-columns:1fr;gap:8px;}}
+  .script-time{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--amber);padding-top:3px;}
+  .script-body h4{font-size:14px;color:var(--text-strong);font-weight:600;margin-bottom:6px;}
+  .script-body .do{font-size:12.5px;margin-bottom:6px;}
+  .script-body .do b{color:var(--accent);font-weight:600;}
+  .script-body .say{font-size:12px;color:var(--text-dim);border-left:2px solid var(--line);padding-left:12px;margin-top:6px;}
+  .tip{border:1px dashed rgba(245,158,11,.5);border-radius:10px;background:rgba(245,158,11,.05);padding:12px 16px;font-size:12.5px;color:var(--text);margin-top:18px;}
+
+  /* 架构图 */
+  .arch{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:22px;}
+  .arch-layer{border-radius:10px;padding:12px 16px;margin-bottom:10px;border:1px solid;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .arch-layer .lt{font-size:13px;font-weight:600;}
+  .arch-layer .ld{font-size:11.5px;color:var(--text-dim);margin-top:2px;width:100%;}
+  .arch-layer .lg{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:1px;border-radius:4px;padding:1px 7px;margin-left:8px;}
+  .arch-arrow{text-align:center;font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--text-faint);padding:3px 0;}
+  .principle{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-top:16px;}
+  .principle h4{font-size:14px;color:var(--text-strong);font-weight:600;margin-bottom:8px;}
+  .principle p{font-size:12.5px;color:var(--text);}
+  .principle .n{font-family:"IBM Plex Mono",monospace;color:var(--accent);}
+
+  /* 表格 */
+  table{width:100%;border-collapse:collapse;table-layout:fixed;background:var(--panel);border-radius:12px;overflow:hidden;}
+  colgroup col:nth-child(1){width:16%;} colgroup col:nth-child(2){width:42%;} colgroup col:nth-child(3){width:42%;}
+  th{font-size:11px;letter-spacing:1px;color:var(--text-dim);text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);font-weight:500;font-family:"IBM Plex Mono",monospace;}
+  td{font-size:12.5px;padding:13px 16px;border-bottom:1px solid var(--line);color:var(--text);vertical-align:top;line-height:1.7;}
+  tr:last-child td{border-bottom:none;}
+  td b{color:var(--text-strong);font-weight:600;}
+  .now{color:var(--amber);} .future{color:var(--green);}
+
+  /* 时间轴 */
+  .timeline{display:grid;grid-template-columns:110px 18px 1fr;gap:14px;margin-top:8px;}
+  @media (max-width:700px){.timeline{grid-template-columns:80px 14px 1fr;gap:10px;}}
+  .tl-time{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--amber);text-align:right;padding-top:4px;white-space:nowrap;}
+  .tl-axis{display:flex;justify-content:center;}
+  .tl-dot{width:11px;height:11px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);box-shadow:0 0 0 2px var(--accent);margin-top:7px;}
+  .tl-dot.done{background:var(--green);box-shadow:0 0 0 2px var(--green);}
+  .tl-content{padding-bottom:30px;position:relative;}
+  .tl-content::before{content:"";position:absolute;left:-32px;top:14px;bottom:-2px;width:1px;background:var(--line);}
+  @media (max-width:700px){.tl-content::before{left:-24px;}}
+  .timeline .tl-row:last-child .tl-content::before{display:none;}
+  .tl-title{font-size:14px;color:var(--text-strong);font-weight:600;}
+  .tl-desc{font-size:12.5px;color:var(--text);margin-top:3px;}
+  .tl-desc .k{color:var(--text-dim);font-size:11.5px;}
+
+  /* 成本 */
+  .cost{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media (max-width:900px){.cost{grid-template-columns:1fr;}}
+  .cost .card .amt{font-family:"IBM Plex Mono",monospace;font-size:22px;color:var(--accent);font-weight:700;margin:4px 0;}
+  .cost .card .amt small{font-size:12px;color:var(--text-dim);font-weight:400;}
+
+  footer{padding:32px 0 48px;border-top:1px solid var(--line);font-size:11.5px;color:var(--text-faint);}
+  footer .mono{color:var(--text-dim);}
+</style>
+</head>
+<body>
+
+<!-- ===== 导航 ===== -->
+<nav>
+  <div class="wrap">
+    <div class="nav-brand">
+      <svg viewBox="0 0 32 32"><path d="M16 5l9 4v7c0 6-3.8 9.8-9 11-5.2-1.2-9-5-9-11V9z" fill="none" stroke="#3984ff" stroke-width="2"/><circle cx="16" cy="16" r="3.2" fill="#3984ff"/></svg>
+      SYSTEMWIRE
+    </div>
+    <div class="nav-links">
+      <a href="#overview">概览</a>
+      <a href="#capabilities">能力</a>
+      <a href="#demo">演示脚本</a>
+      <a href="#tech">技术方案</a>
+      <a href="#resilience">预案</a>
+      <a href="#roadmap">路线</a>
+      <a href="#cost">成本</a>
+      <span class="nav-badge">DEMO READY</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== Hero ===== -->
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">AI SECURITY AGENT · DEMO BRIEF</div>
+    <h1>内网安全智能体平台<br>Demo 演示方案</h1>
+    <p class="sub">对话驱动的安全智能体 —— 用自然语言完成「内网体检、蜜点部署、攻击归因」三件事，AI 自动编排工具并输出可视化结果与专业报告。</p>
+    <div class="meta">
+      <span class="chip">当前形态 <b>可交互 Demo</b></span>
+      <span class="chip">数据 <b>模拟（12 资产 / 192.168.1.0/24）</b></span>
+      <span class="chip">模型 <b>DeepSeek（deepseek-chat）</b></span>
+      <span class="chip">前端 <b>Next.js + CopilotKit</b></span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 概览 ===== -->
+<section id="overview">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">01</span><h2 class="sec-title">一页纸概览</h2><span class="sec-en">Overview</span></div>
+    <div class="grid3">
+      <div class="card">
+        <div class="ic" style="background:rgba(57,132,255,.12)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3984ff" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></div>
+        <span class="tag">ZERO LEARNING</span>
+        <h3>零学习成本</h3>
+        <p>像聊天一样使用安全工具。输入「对 192.168.1.0/24 做内网体检」，系统自动理解意图、编排工具、输出结果，无需培训安全平台操作。</p>
+      </div>
+      <div class="card">
+        <div class="ic" style="background:rgba(52,211,153,.12)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.8"><path d="M12 3l7 4v5c0 5-3.4 7.8-7 9-3.6-1.2-7-4-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <span class="tag">CLOSED LOOP</span>
+        <h3>三动作闭环</h3>
+        <p>发现风险 → 部署诱饵 → 溯源归因，三个安全动作在同一个界面走完，报告卡之间可直接跳转（定位拓扑 / 跳转部署）。</p>
+      </div>
+      <div class="card">
+        <div class="ic" style="background:rgba(167,139,250,.12)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8"><path d="M4 19V5M4 5h16M4 5l16 14"/></svg></div>
+        <span class="tag">AI REPORT</span>
+        <h3>AI 自动出报告</h3>
+        <p>攻击链分析、弱口令清单、ATT&CK 手法映射、处置建议、置信度研判 —— 深度报告由大模型自动生成，省去分析师大量时间。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 能力 ===== -->
+<section id="capabilities">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">02</span><h2 class="sec-title">三块核心能力</h2><span class="sec-en">Capabilities</span></div>
+    <div class="grid3">
+      <div class="cap">
+        <div class="cap-head"><span class="t">内网体检</span><span class="badge" style="background:rgba(57,132,255,.14);color:var(--accent)">ASSET-MAPPING</span></div>
+        <div class="cap-body">
+          <div class="cmd" style="margin-bottom:10px">> 对 192.168.1.0/24 做内网体检</div>
+          <div class="flow">
+            <div><span class="k">扫描</span> · 资产测绘：12 节点逐个动态出现（扫出一个加一个）</div>
+            <div><span class="k">风险</span> · 高危节点标红：105 MS17-010、108 SSH 弱口令</div>
+            <div><span class="k">报告</span> · 资产总数 / 风险数 + AI 深度体检报告</div>
+            <div><span class="k">联动</span> · 报告卡 → 定位拓扑 / 跳转蜜点部署</div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="cap-head"><span class="t">蜜点部署</span><span class="badge" style="background:rgba(245,158,11,.14);color:var(--amber)">DECEPTION-DEPLOY</span></div>
+        <div class="cap-body">
+          <div class="cmd" style="margin-bottom:10px">> 检测到 105 有 MS17-010，帮我部署 SSH 诱饵</div>
+          <div class="flow">
+            <div><span class="k">决策</span> · AI 自主选位（或人工自选节点）</div>
+            <div><span class="k">预检</span> · 端口冲突自动处理（3306 被占 → 自动换 13306）</div>
+            <div><span class="k">模板</span> · SSH 青 / SQL 琥珀 / WEB 紫 / SMB 绿，防重复部署</div>
+            <div><span class="k">可视</span> · 部署卡 + 进度环 + AI 部署建议</div>
+          </div>
+        </div>
+      </div>
+      <div class="cap">
+        <div class="cap-head"><span class="t">归因分析</span><span class="badge" style="background:rgba(52,211,153,.14);color:var(--green)">THREAT-ATTRIBUTION</span></div>
+        <div class="cap-body">
+          <div class="cmd" style="margin-bottom:10px">> 分析最近一条蜜点告警</div>
+          <div class="flow">
+            <div><span class="k">告警</span> · 蜜点事件卡（触发时间 / 行为 / 弱口令命中）</div>
+            <div><span class="k">溯源</span> · 四层图谱逐层展开：事件 → 攻击源 → 跳板 → 失陷账号</div>
+            <div><span class="k">映射</span> · ATT&CK 链：T1110 → T1210 → T1078</div>
+            <div><span class="k">研判</span> · 置信度 87% + 攻击链总结</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 演示脚本 ===== -->
+<section id="demo">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">03</span><h2 class="sec-title">演示脚本（给老板，照着走）</h2><span class="sec-en">Demo Script</span></div>
+
+    <div class="script">
+      <div class="script-item">
+        <div class="script-time">00:00 · 开场</div>
+        <div class="script-body">
+          <h4>展示产品形态</h4>
+          <div class="do">打开 <b>http://localhost:3001</b>，展示三栏界面：<b>左栏</b> 三功能导航（带 kicker 路径）· <b>中栏</b> 对话会话（顶部 Agent 状态灯 AGENT READY）· <b>右栏</b> 详情面板。</div>
+          <div class="say">讲解：这不是传统安全平台，是一个「对话驱动的安全智能体」——像 Codex / Claude Code 一样，以对话为主体完成安全操作。</div>
+        </div>
+      </div>
+      <div class="script-item">
+        <div class="script-time">00:30 · 能力一</div>
+        <div class="script-body">
+          <h4>内网体检</h4>
+          <div class="do">输入 <b>「对 192.168.1.0/24 做内网体检」</b> → 状态灯变 AGENT WORKING → 拓扑图节点<b>逐个出现</b>（12/12）→ 高危节点标红 → 右栏进度条 0→100% → 报告卡（12 资产 / 2 高风险）→ AI 生成完整体检报告。</div>
+          <div class="say">讲解：AI 调用 scanAsset 工具，扫描结果实时渲染成拓扑 Artifact；报告包含攻击链（103→105→108）、弱口令、蜜点部署建议——AI 不只聊天，还能干活。</div>
+        </div>
+      </div>
+      <div class="script-item">
+        <div class="script-time">02:30 · 能力二</div>
+        <div class="script-body">
+          <h4>蜜点部署</h4>
+          <div class="do">输入 <b>「检测到 105 有 MS17-010，帮我部署 SSH 诱饵；网关有 Web，部署 Web 仿冒」</b> → 两张部署卡依次出现（SSH 青 / WEB 紫）→ 端口预检通过 → 进度 100% → AI 给出专业建议（补 SMB 诱饵覆盖 445 端口）。</div>
+          <div class="say">讲解：AI 自主决策部署位置与模板类型，部署过程全可视化；「执行与决策分离」——写操作有预检，AI 只建议不越权。</div>
+        </div>
+      </div>
+      <div class="script-item">
+        <div class="script-time">04:00 · 能力三</div>
+        <div class="script-body">
+          <h4>归因分析</h4>
+          <div class="do">切到归因页（或直接说 <b>「分析最近一条蜜点告警」</b>）→ 红色告警卡 → 四层溯源图谱<b>逐层展开</b>（事件 → 攻击源 → 跳板 → 失陷账号）→ ATT&CK 链 → 研判结论卡（置信度 87%）。</div>
+          <div class="say">讲解：从一条蜜点告警回溯完整攻击链——离职账号 wangwei 爆破 105 → MS17-010 横向移动 → 108 触发诱饵；观测证据与行为推断分级标注。</div>
+        </div>
+      </div>
+      <div class="script-item">
+        <div class="script-time">05:30 · 收尾</div>
+        <div class="script-body">
+          <h4>总结与边界</h4>
+          <div class="do">展示页面稳定状态（状态灯 AGENT READY，可继续对话追问报告细节）。</div>
+          <div class="say">讲解：当前为 Demo，数据为模拟；三件事已验证 AI 工具调用闭环。真实落地路径：接真实扫描工具（fscan）+ 真实蜜罐（HFish），管理端与内网执行端两级部署——方案已在准备。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip">
+      演示要点：① 全程强调「对话驱动」——所有操作都是自然语言，不用点按钮；② 等 AI 跑完再讲，不要边跑边讲；③ 若模型偶发卡顿，可刷新页面重新输入（DeepSeek 按量计费，演示成本约几分钱）；④ 准备一句兜底：「数据为模拟，重点看交互范式与 AI 编排能力」。
+    </div>
+  </div>
+</section>
+
+<!-- ===== 技术方案 ===== -->
+<section id="tech">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">04</span><h2 class="sec-title">技术方案与设计</h2><span class="sec-en">Architecture</span></div>
+
+    <div class="arch">
+      <div class="arch-layer" style="border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.05)">
+        <span class="lt" style="color:var(--text-strong)">交互层 · 三栏 UI 三投影视图</span><span class="lg" style="background:rgba(52,211,153,.15);color:var(--green)">已实现</span>
+        <div class="ld">左导航 / 中 CopilotKit 会话 + Artifact 卡片 / 右详情面板；拓扑、部署卡、溯源图谱各自独立投影，共享同一数据层</div>
+      </div>
+      <div class="arch-arrow">↓ 对话 ↓</div>
+      <div class="arch-layer" style="border-color:rgba(57,132,255,.4);background:rgba(57,132,255,.05)">
+        <span class="lt" style="color:var(--text-strong)">对话编排层 · CopilotKit + DeepSeek</span><span class="lg" style="background:rgba(57,132,255,.15);color:var(--accent)">已实现</span>
+        <div class="ld">大模型理解意图 → 决定调用工具 → 工具结果渲染成 Artifact；AI 只做编排与解说，不直接碰数据</div>
+      </div>
+      <div class="arch-arrow">↓ 工具调用 ↓</div>
+      <div class="arch-layer" style="border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.04)">
+        <span class="lt" style="color:var(--text-strong)">业务层 · 三个工具</span><span class="lg" style="background:rgba(245,158,11,.15);color:var(--amber)">Demo 为模拟</span>
+        <div class="ld">scanAsset（资产测绘） / deployHoneypot（蜜点部署+端口预检） / traceAttack（四层溯源）——未来替换为真实工具执行器</div>
+      </div>
+      <div class="arch-arrow">↓ 数据 ↓</div>
+      <div class="arch-layer" style="border-color:var(--line);background:var(--panel2)">
+        <span class="lt" style="color:var(--text-strong)">数据层 · 统一状态模型</span><span class="lg" style="background:rgba(255,255,255,.06);color:var(--text-dim)">待落库</span>
+        <div class="ld">资产 / 关系 / 部署状态 / 溯源图层 —— 工具返回的 JSON 是唯一事实，AI 文本只是解说</div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <h4>设计原则</h4>
+      <p><span class="n">01</span> <b style="color:var(--text-strong)">执行与决策分离：</b>AI 只能调用白名单工具，写操作走预检；工具返回的真实数据渲染界面，AI 生成的文本永远不算事实。</p>
+      <p style="margin-top:8px"><span class="n">02</span> <b style="color:var(--text-strong)">AI 失效可降级：</b>三层防护——服务挂（playbook 直达工具）/ 流中断（结果可重放）/ 幻觉（白名单+确认）。AI 坏不影响核心工具链。</p>
+      <p style="margin-top:8px"><span class="n">03</span> <b style="color:var(--text-strong)">两级部署预留：</b>扫描流量贴着资产（内网 agent），跨网络只传小数据（指令+结果）——当前 Demo 单机，架构按两级设计。</p>
+    </div>
+
+    <div class="principle">
+      <h4>技术栈</h4>
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text)">
+        Next.js 15（App Router + Turbopack） · React 19 · CopilotKit 1.73（对话 + 工具渲染） · DeepSeek deepseek-chat（OpenAI 兼容通道） · TypeScript
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Demo vs 落地 ===== -->
+<section id="compare">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">05</span><h2 class="sec-title">现在 vs 未来</h2><span class="sec-en">Demo vs Production</span></div>
+    <table>
+      <colgroup><col><col><col></colgroup>
+      <tr><th>维度</th><th class="now">现在（Demo）</th><th class="future">未来（落地）</th></tr>
+      <tr><td><b>数据</b></td><td class="now">模拟 12 资产（192.168.1.0/24）</td><td class="future">fscan 真实扫描产出资产/风险</td></tr>
+      <tr><td><b>蜜点</b></td><td class="now">模拟部署卡片</td><td class="future">HFish 真实蜜罐 + 告警回流</td></tr>
+      <tr><td><b>归因</b></td><td class="now">模拟攻击链（置信度 87%）</td><td class="future">真实告警四层溯源</td></tr>
+      <tr><td><b>模型</b></td><td class="now">DeepSeek API</td><td class="future">学校本地模型 / DeepSeek 双通道</td></tr>
+      <tr><td><b>部署</b></td><td class="now">本地单机</td><td class="future">管理端 + 内网 agent 两级，加密通道</td></tr>
+      <tr><td><b>场景</b></td><td class="now">演示 / 验证交互范式</td><td class="future">试点网络 / 展会现场防护</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ===== 应急预案 ===== -->
+<section id="resilience">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">06</span><h2 class="sec-title">应急预案与降级</h2><span class="sec-en">Resilience</span></div>
+
+    <div class="principle">
+      <h4>设计即预案：架构本身内置容错</h4>
+      <p><span class="n">01</span> <b style="color:var(--text-strong)">AI 只编排不执行：</b>模型失效时工具链照常运行——损失是「没人解说」，不是「系统瘫痪」。</p>
+      <p style="margin-top:8px"><span class="n">02</span> <b style="color:var(--text-strong)">工具结果即事实：</b>界面渲染全部来自工具返回数据，AI 文本只是解说，幻觉不污染任何数据。</p>
+      <p style="margin-top:8px"><span class="n">03</span> <b style="color:var(--text-strong)">数据先在本地：</b>现场 agent 先落库，通道恢复后补传，断网不丢。</p>
+    </div>
+
+    <table style="margin-top:16px">
+      <colgroup><col style="width:22%"><col style="width:44%"><col style="width:34%"></colgroup>
+      <tr><th>故障场景</th><th>应对</th><th>兜底方案</th></tr>
+      <tr>
+        <td><b>大模型失效</b><br><span style="color:var(--text-dim);font-size:11px">宕机 / 限流 / 超时</span></td>
+        <td>重试 + 演示前预热；AI 只做编排，核心工具链可脱离 AI 独立运行（playbook 直达工具）</td>
+        <td class="future">本地模型双通道（学校 Ollama 兜底）；按钮直达工具，不依赖对话</td>
+      </tr>
+      <tr>
+        <td><b>大模型幻觉 / 误调用</b></td>
+        <td>白名单工具 + 写操作确认流；AI 生成的文本永远不算事实，界面只信工具返回</td>
+        <td class="future">全程审计日志，误操作可追溯、可回滚</td>
+      </tr>
+      <tr>
+        <td><b>内网禁出站</b><br><span style="color:var(--text-dim);font-size:11px">无法连公网</span></td>
+        <td>agent 走专用 4G/5G 通道回连（与业务网物理隔离）；或 Tailscale 出站（443）</td>
+        <td class="future">完全隔离场景：全内网部署 + 本地模型，管理端经 VPN 访问</td>
+      </tr>
+      <tr>
+        <td><b>通道中断</b><br><span style="color:var(--text-dim);font-size:11px">链路断开</span></td>
+        <td>agent 本地继续执行 + SQLite 缓存结果，网络恢复后自动补传；心跳检测 + 自动重连</td>
+        <td class="future">断点续传；管理端任务状态机挂起等待 agent 上线</td>
+      </tr>
+      <tr>
+        <td><b>agent 盒子故障</b><br><span style="color:var(--text-dim);font-size:11px">现场设备损坏</span></td>
+        <td>无状态设计：盒子没有大脑，换一台机器一条命令恢复，重新下发任务即可</td>
+        <td class="future">多盒冗余（每台数百元，成本极低）</td>
+      </tr>
+      <tr>
+        <td><b>演示现场断网</b><br><span style="color:var(--text-dim);font-size:11px">老板面前掉链子</span></td>
+        <td>前端完全本地运行；模型调用需外网 → 切手机热点应急</td>
+        <td class="future">预录完整流程视频/截图兜底，断网也能讲完方案</td>
+      </tr>
+    </table>
+
+    <div class="principle">
+      <h4>演示现场预案（给老板演示时）</h4>
+      <p>① 演示前 10 分钟完整跑一遍三流程（预热模型 + 确认额度）；② AI 卡住 → 刷新页面重发（会话历史在服务端内存，不丢）；③ 若模型持续异常 → 先讲「三闭环」架构再补演示；④ 万能兜底话术：<b style="color:var(--text-strong)">「数据为模拟，重点看交互范式与 AI 编排能力，真实工具接入是下一步」</b>。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 路线 ===== -->
+<section id="roadmap">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">07</span><h2 class="sec-title">后续路线图</h2><span class="sec-en">Roadmap</span></div>
+    <div class="timeline">
+      <div class="tl-row" style="display:contents">
+        <div class="tl-time">阶段 0 · 已完成</div>
+        <div class="tl-axis"><div class="tl-dot done"></div></div>
+        <div class="tl-content">
+          <div class="tl-title">Demo 三功能闭环</div>
+          <div class="tl-desc">三页面完整可交互，DeepSeek 工具调用链路实测通过，本次演示基于此。<span class="k">投入：已完成</span></div>
+        </div>
+      </div>
+      <div class="tl-row" style="display:contents">
+        <div class="tl-time">阶段 1 · 约 1 周</div>
+        <div class="tl-axis"><div class="tl-dot"></div></div>
+        <div class="tl-content">
+          <div class="tl-title">产品化底座</div>
+          <div class="tl-desc">数据落库（PostgreSQL）、异步任务系统（真实进度）、写操作确认流、三层降级。<span class="k">价值：从演示到可用的关键一步</span></div>
+        </div>
+      </div>
+      <div class="tl-row" style="display:contents">
+        <div class="tl-time">阶段 2 · 约 2 周</div>
+        <div class="tl-axis"><div class="tl-dot"></div></div>
+        <div class="tl-content">
+          <div class="tl-title">真实工具接入</div>
+          <div class="tl-desc">fscan / HFish 适配器 + 内网 agent 盒子，管理端与现场两级部署。<span class="k">价值：真实数据、真实告警</span></div>
+        </div>
+      </div>
+      <div class="tl-row" style="display:contents">
+        <div class="tl-time">阶段 3 · 试点</div>
+        <div class="tl-axis"><div class="tl-dot"></div></div>
+        <div class="tl-content">
+          <div class="tl-title">真实网络试点</div>
+          <div class="tl-desc">在授权网络环境试点（如校园网/展会网络），验证扫描、蜜点、归因全链路。<span class="k">价值：产出真实安全价值</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 成本 ===== -->
+<section id="cost">
+  <div class="wrap">
+    <div class="sec-head"><span class="sec-no">08</span><h2 class="sec-title">成本估算</h2><span class="sec-en">Cost</span></div>
+    <div class="cost">
+      <div class="card">
+        <span class="tag">LLM · DEEPSEEK</span>
+        <div class="amt">≈0<small> 元/次演示</small></div>
+        <p>deepseek-chat 按 token 计费，一次完整演示（体检+部署+归因）约几分钱量级。</p>
+      </div>
+      <div class="card">
+        <span class="tag">SERVER</span>
+        <div class="amt">0–50<small> 元/月</small></div>
+        <p>当前本地运行零成本；上线用云服务器轻量实例（或复用学校服务器）约几十元/月。</p>
+      </div>
+      <div class="card">
+        <span class="tag">AGENT BOX · 阶段2+</span>
+        <div class="amt">数百<small> 元/台</small></div>
+        <p>内网执行端一台 Linux 小主机即可，无 GPU 需求；模型推理全部在管理端。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="mono">SYSTEMWIRE · AI SECURITY AGENT</div>
+    <div style="margin-top:6px">内网安全智能体平台 · Demo 演示方案 · 数据为模拟 · 交互范式与 AI 编排能力为本阶段重点</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // 导航锚点平滑滚动（原生已配 scroll-behavior，此处仅做导航高亮）
+  var links = document.querySelectorAll('.nav-links a');
+  var sections = document.querySelectorAll('section[id]');
+  function onScroll(){
+    var y = window.scrollY + 90, cur = '';
+    sections.forEach(function(s){ if (s.offsetTop <= y) cur = s.id; });
+    links.forEach(function(a){
+      a.style.color = (a.getAttribute('href') === '#' + cur) ? '#e8eefc' : '';
+      a.style.background = (a.getAttribute('href') === '#' + cur) ? 'rgba(57,132,255,.14)' : '';
+    });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+})();
+</script>
+</body>
+</html>

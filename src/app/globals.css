@@ -1,0 +1,909 @@
+@import "tailwindcss";
+
+/* ============================================================
+   SYSTEMWIRE · 内网安全智能体平台 —— 高科技 HUD 设计系统
+   深色 / 单色蓝青 + 告警语义色 / 等宽 / 角框 / 扫描 / 辉光
+   ============================================================ */
+
+:root {
+  --bg: #06080c;
+  --bg-2: #080b11;
+  --panel: #0b0e14;
+  --panel-2: #0d121b;
+  --card: #080d15;
+  --line: #1e2c45;
+  --line-2: #294a79;
+  --accent: #3984ff;
+  --cyan: #22d3ee;
+  --green: #34d399;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --purple: #a78bfa;
+  --text: #a1aec2;
+  --text-bright: #e8eefc;
+  --muted: #5c6b85;
+  --border: #1e2c45;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "IBM Plex Mono", "Noto Sans SC", monospace;
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: rgba(57, 132, 255, 0.32);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #294a79, #16243c);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3460a0;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ============================================================
+   全局高科技背景：网格 + 双色辉光 + 扫描线
+   ============================================================ */
+.hud-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1100px 620px at 14% -8%, rgba(57, 132, 255, 0.12), transparent 60%),
+    radial-gradient(900px 560px at 108% 112%, rgba(34, 211, 238, 0.08), transparent 55%),
+    radial-gradient(720px 480px at 50% 118%, rgba(57, 132, 255, 0.06), transparent 60%),
+    var(--bg);
+}
+.hud-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(57, 132, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(57, 132, 255, 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(120% 90% at 50% 30%, #000 30%, transparent 100%);
+}
+.hud-backdrop::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 180px;
+  top: -180px;
+  background: linear-gradient(180deg, transparent, rgba(57, 132, 255, 0.055), rgba(34, 211, 238, 0.09), transparent);
+  animation: hud-scanline 9s linear infinite;
+}
+@keyframes hud-scanline {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(calc(100vh + 360px)); }
+}
+
+/* ============================================================
+   面板 / 卡片 / 角框
+   ============================================================ */
+.hud-panel {
+  position: relative;
+  background: linear-gradient(180deg, rgba(18, 28, 48, 0.5), rgba(9, 13, 21, 0.86));
+  border: 1px solid var(--line);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.015), 0 14px 40px rgba(0, 0, 0, 0.45);
+}
+.hud-panel-flat {
+  background: rgba(11, 16, 25, 0.72);
+  border: 1px solid var(--line);
+}
+.hud-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(15, 22, 37, 0.92), rgba(8, 12, 20, 0.96));
+  border: 1px solid #14233c;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  opacity: 1; /* 兜底：入场动画若被 React 重挂载打断，卡片仍保持可见 */
+}
+.hud-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  background: linear-gradient(90deg, rgba(30, 52, 90, 0.55), rgba(11, 17, 28, 0.4));
+  border-bottom: 1px solid #16263f;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: var(--accent);
+  font-family: "IBM Plex Mono", monospace;
+  text-transform: uppercase;
+}
+.hud-card-body {
+  padding: 12px;
+}
+
+/* 四角 HUD 括框（配合两个 <i> 子元素渲染另外两角） */
+.hud-bracket {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.hud-bracket::before,
+.hud-bracket::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--bracket-color, var(--accent));
+  border-style: solid;
+  opacity: 0.85;
+}
+.hud-bracket::before {
+  top: -1px;
+  left: -1px;
+  border-width: 1.5px 0 0 1.5px;
+}
+.hud-bracket::after {
+  bottom: -1px;
+  right: -1px;
+  border-width: 0 1.5px 1.5px 0;
+}
+.hud-bracket i {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--bracket-color, var(--accent));
+  border-style: solid;
+  opacity: 0.85;
+}
+.hud-bracket i.tr {
+  top: -1px;
+  right: -1px;
+  border-width: 1.5px 1.5px 0 0;
+}
+.hud-bracket i.bl {
+  bottom: -1px;
+  left: -1px;
+  border-width: 0 0 1.5px 1.5px;
+}
+
+/* 分区小标题：序号 + 标签 + 细线 */
+.hud-kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-family: "IBM Plex Mono", monospace;
+  white-space: nowrap;
+}
+.hud-kicker b {
+  color: var(--accent);
+  font-weight: 600;
+}
+.hud-kicker::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line-2), transparent);
+}
+
+.hud-divider {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(90deg, transparent, var(--line-2), transparent);
+  margin: 10px 0;
+}
+
+/* ============================================================
+   标签 / 按钮
+   ============================================================ */
+.hud-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 7px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  line-height: 1.7;
+  border: 1px solid currentColor;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%);
+  font-family: "IBM Plex Mono", monospace;
+  white-space: nowrap;
+}
+.hud-tag::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.hud-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: "IBM Plex Mono", "Noto Sans SC", monospace;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  line-height: 1;
+  padding: 9px 14px;
+  cursor: pointer;
+  color: var(--text);
+  background: linear-gradient(180deg, rgba(24, 38, 64, 0.55), rgba(12, 18, 30, 0.85));
+  border: 1px solid var(--line-2);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  transition: color 0.15s, border-color 0.15s, box-shadow 0.15s, background 0.15s, transform 0.05s;
+  text-transform: uppercase;
+  user-select: none;
+  white-space: nowrap;
+}
+.hud-btn:hover {
+  color: var(--text-bright);
+  border-color: var(--accent);
+  box-shadow: 0 0 14px rgba(57, 132, 255, 0.28), inset 0 0 12px rgba(57, 132, 255, 0.08);
+}
+.hud-btn:active {
+  transform: translateY(1px);
+}
+.hud-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.hud-btn-primary {
+  color: #dcebff;
+  border-color: rgba(57, 132, 255, 0.7);
+  background: linear-gradient(180deg, rgba(57, 132, 255, 0.32), rgba(23, 52, 96, 0.55));
+  box-shadow: 0 0 16px rgba(57, 132, 255, 0.22), inset 0 0 14px rgba(57, 132, 255, 0.12);
+}
+.hud-btn-primary:hover {
+  box-shadow: 0 0 22px rgba(57, 132, 255, 0.5), inset 0 0 18px rgba(57, 132, 255, 0.2);
+  border-color: var(--accent);
+}
+.hud-btn-danger {
+  color: #ffd9d9;
+  border-color: rgba(239, 68, 68, 0.7);
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.26), rgba(90, 20, 24, 0.5));
+}
+.hud-btn-danger:hover {
+  border-color: var(--red);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.4), inset 0 0 14px rgba(239, 68, 68, 0.12);
+}
+.hud-btn-amber {
+  color: #ffe8c2;
+  border-color: rgba(245, 158, 11, 0.6);
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.2), rgba(80, 52, 12, 0.45));
+}
+.hud-btn-amber:hover {
+  border-color: var(--amber);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.35);
+}
+.hud-btn-green {
+  color: #d6ffee;
+  border-color: rgba(52, 211, 153, 0.6);
+  background: linear-gradient(180deg, rgba(52, 211, 153, 0.2), rgba(14, 66, 50, 0.45));
+}
+.hud-btn-green:hover {
+  border-color: var(--green);
+  box-shadow: 0 0 14px rgba(52, 211, 153, 0.35);
+}
+.hud-btn-ghost {
+  background: rgba(13, 18, 28, 0.4);
+}
+.hud-btn-sm {
+  padding: 6px 10px;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+/* 分段控制器（授权模式 / 引擎切换） */
+.hud-seg {
+  display: inline-flex;
+  padding: 2px;
+  background: rgba(8, 12, 20, 0.85);
+  border: 1px solid var(--line);
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+}
+.hud-seg button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-family: "IBM Plex Mono", "Noto Sans SC", monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  padding: 5px 11px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.hud-seg button.on {
+  color: #dcebff;
+  background: linear-gradient(180deg, rgba(57, 132, 255, 0.32), rgba(23, 52, 96, 0.5));
+  box-shadow: inset 0 0 12px rgba(57, 132, 255, 0.16), 0 0 10px rgba(57, 132, 255, 0.18);
+}
+.hud-seg button.on.red {
+  color: #ffd9d9;
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.3), rgba(90, 20, 24, 0.5));
+  box-shadow: inset 0 0 12px rgba(239, 68, 68, 0.16), 0 0 10px rgba(239, 68, 68, 0.2);
+}
+
+/* 状态灯 */
+.hud-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--dot, var(--green));
+  box-shadow: 0 0 8px var(--dot, var(--green));
+  flex: none;
+}
+.hud-dot.pulse {
+  animation: hud-dot-pulse 1.6s ease-in-out infinite;
+}
+@keyframes hud-dot-pulse {
+  0%, 100% { box-shadow: 0 0 4px var(--dot, var(--green)); opacity: 0.85; }
+  50% { box-shadow: 0 0 12px var(--dot, var(--green)), 0 0 4px var(--dot, var(--green)); opacity: 1; }
+}
+
+/* 辉光文字 / 数值 */
+.hud-glow {
+  text-shadow: 0 0 12px color-mix(in srgb, currentColor 55%, transparent);
+}
+.hud-value {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 600;
+  color: var(--text-bright);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 终端命令行 */
+.hud-term {
+  font-family: "IBM Plex Mono", monospace;
+  background: rgba(6, 9, 14, 0.8);
+  border: 1px solid #14233c;
+  color: #9fd7ff;
+  padding: 7px 10px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.hud-term .prompt {
+  color: var(--cyan);
+}
+
+/* 进度条 */
+.hud-bar {
+  position: relative;
+  height: 5px;
+  background: rgba(30, 44, 69, 0.6);
+  overflow: hidden;
+}
+.hud-bar > i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--accent), var(--cyan));
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.6);
+  transition: width 0.4s ease;
+}
+.hud-bar.red > i { background: linear-gradient(90deg, #b91c1c, var(--red)); box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); }
+.hud-bar.amber > i { background: linear-gradient(90deg, #b45309, var(--amber)); box-shadow: 0 0 10px rgba(245, 158, 11, 0.55); }
+.hud-bar.green > i { background: linear-gradient(90deg, #0d9488, var(--green)); box-shadow: 0 0 10px rgba(52, 211, 153, 0.5); }
+
+/* 扫描中斜纹 */
+.hud-scanning {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(57, 132, 255, 0.06) 0,
+    rgba(57, 132, 255, 0.06) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+}
+
+/* ============================================================
+   动画
+   ============================================================ */
+@keyframes hud-blink { 50% { opacity: 0; } }
+.hud-caret {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+  animation: hud-blink 0.8s infinite;
+  vertical-align: -2px;
+}
+
+@keyframes hud-slow-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.hud-slow-blink { animation: hud-slow-blink 1.4s ease-in-out infinite; }
+
+@keyframes hud-slide-up {
+  from { opacity: 1; transform: translateY(14px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.hud-slide-up { opacity: 1; animation: hud-slide-up 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+@keyframes hud-fade-in { from { opacity: 1; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+.hud-fade-in { opacity: 1; animation: hud-fade-in 0.5s ease both; }
+
+@keyframes hud-spin { to { transform: rotate(360deg); } }
+.hud-spin { animation: hud-spin 1s linear infinite; transform-origin: center; transform-box: fill-box; }
+.hud-spin-slow { animation: hud-spin 8s linear infinite; transform-origin: center; transform-box: fill-box; }
+
+@keyframes hud-radar-sweep { to { transform: rotate(360deg); } }
+
+@keyframes hud-ping {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+.hud-ping { transform-origin: center; transform-box: fill-box; animation: hud-ping 1.8s ease-out infinite; }
+
+@keyframes hud-flow { to { stroke-dashoffset: -24; } }
+.hud-flow { stroke-dasharray: 6 6; animation: hud-flow 0.9s linear infinite; }
+
+@keyframes hud-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.hud-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(57, 132, 255, 0.25), transparent);
+  background-size: 200% 100%;
+  animation: hud-shimmer 2.2s linear infinite;
+}
+
+@keyframes hud-glow-breath {
+  0%, 100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.25); }
+  50% { box-shadow: 0 0 22px rgba(239, 68, 68, 0.55); }
+}
+.hud-glow-red { animation: hud-glow-breath 2s ease-in-out infinite; }
+
+/* ============================================================
+   启动序列 Boot overlay
+   ============================================================ */
+.hud-boot {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: radial-gradient(900px 600px at 50% 40%, rgba(10, 20, 38, 0.92), rgba(4, 6, 10, 0.98));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 22px;
+  transition: opacity 0.6s ease, visibility 0.6s;
+}
+.hud-boot.done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.hud-boot-ring {
+  width: 96px;
+  height: 96px;
+  position: relative;
+}
+.hud-boot-log {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-align: center;
+  min-height: 54px;
+}
+.hud-boot-log .ok { color: var(--green); }
+.hud-boot-log .run { color: var(--cyan); }
+
+/* ============================================================
+   CopilotKit 深色 / 高科技主题覆盖
+   ============================================================ */
+.copilotKitChat {
+  background: transparent !important;
+  color: var(--text-bright) !important;
+  --bg: #06080c !important;
+  --background: #06080c !important;
+  --foreground: #e8eefc !important;
+  --muted: #5c6b85 !important;
+  --border: #1e2c45 !important;
+  --card: #0b0e14 !important;
+  --primary: #3984ff !important;
+}
+.copilotKitMessages {
+  background:
+    radial-gradient(760px 360px at 8% -8%, rgba(57, 132, 255, 0.1), transparent 60%),
+    radial-gradient(560px 320px at 112% 112%, rgba(34, 211, 238, 0.06), transparent 55%),
+    transparent !important;
+  padding-bottom: 26px;
+  scroll-behavior: smooth;
+}
+
+.copilotKitAssistantMessage,
+.copilotKitAssistantMessage [class*="prose"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--text-bright) !important;
+  max-width: 780px;
+}
+.copilotKitAssistantMessage [class*="prose"] p,
+.copilotKitAssistantMessage [class*="prose"] li {
+  color: var(--text) !important;
+}
+.copilotKitAssistantMessage [class*="prose"] strong {
+  color: var(--text-bright) !important;
+}
+.copilotKitAssistantMessage { margin: 10px 0; }
+.copilotKitUserMessage { margin: 12px 0; background: transparent !important; }
+.copilotKitUserMessage [class*="prose"] {
+  background: linear-gradient(180deg, #18294a, #122038) !important;
+  color: #e8eefc !important;
+  border: 1px solid #294a79 !important;
+  border-radius: 2px !important;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 16px rgba(57, 132, 255, 0.1) !important;
+  padding: 8px 12px !important;
+}
+
+.copilotKitChat [class*="pointer-events-none"][class*="z-20"] {
+  background: transparent !important;
+}
+
+.copilotKitChat .ck-avatar,
+.copilotKitChat [class*="avatar"] {
+  background: linear-gradient(140deg, #16315c, #0a1526) !important;
+  border: 1px solid #2f5690 !important;
+  box-shadow: 0 0 14px rgba(57, 132, 255, 0.4), inset 0 0 8px rgba(57, 132, 255, 0.2) !important;
+  color: #9fd7ff !important;
+}
+
+.copilotKitInput {
+  background: linear-gradient(135deg, rgba(24, 38, 66, 0.6), rgba(9, 13, 21, 0.94)) !important;
+  border: 1px solid #294a79 !important;
+  border-radius: 2px !important;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  color: var(--text-bright) !important;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.copilotKitInput:focus-within {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px rgba(57, 132, 255, 0.16), 0 0 26px rgba(57, 132, 255, 0.28), 0 10px 34px rgba(0, 0, 0, 0.5) !important;
+}
+.copilotKitInput textarea,
+.copilotKitInput input {
+  color: var(--text-bright) !important;
+  caret-color: var(--cyan) !important;
+}
+.copilotKitInput textarea::placeholder,
+.copilotKitInput input::placeholder {
+  color: #4d5c78 !important;
+}
+.copilotKitChat .copilotKitInput {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+/* 建议 chips：切角矩形 + hover 辉光 */
+.copilotKitChat [class*="uggestion"] {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+/* 建议词容器（含聚焦输入框时浮出的弹层形态）默认白底，必须透明化 */
+.copilotKitChat div:has(> [data-slot="suggestion-pill"]),
+.copilotKitChat div:has(> [data-testid="copilot-suggestion"]) {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.copilotKitChat [role="dialog"]:has([data-slot="suggestion-pill"]),
+.copilotKitChat [data-slot="suggestions-popover"],
+.copilotKitChat [data-slot="suggestions-popover-content"] {
+  background: rgba(9, 14, 23, 0.92) !important;
+  border: 1px solid #1e2c45 !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6), 0 0 22px rgba(57, 132, 255, 0.12) !important;
+  backdrop-filter: blur(6px);
+}
+.copilotKitChat [class*="uggestion"] button,
+.copilotKitChat [class*="Suggestion"] button,
+.copilotKitChat button[class*="ill"],
+.copilotKitChat button[class*="Pill"],
+.copilotKitChat [data-suggestion],
+.copilotKitChat [data-slot="suggestion-pill"],
+.copilotKitChat [data-testid="copilot-suggestion"] {
+  background: rgba(11, 16, 25, 0.85) !important;
+  border: 1px solid #294a79 !important;
+  color: var(--text) !important;
+  border-radius: 2px !important;
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+  font-family: "IBM Plex Mono", "Noto Sans SC", monospace !important;
+  font-size: 11px !important;
+  padding: 7px 12px !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s, box-shadow 0.15s, color 0.15s;
+}
+.copilotKitChat [class*="uggestion"] button:hover,
+.copilotKitChat [class*="Suggestion"] button:hover,
+.copilotKitChat button[class*="ill"]:hover,
+.copilotKitChat button[class*="Pill"]:hover,
+.copilotKitChat [data-slot="suggestion-pill"]:hover,
+.copilotKitChat [data-testid="copilot-suggestion"]:hover {
+  background: rgba(24, 40, 68, 0.9) !important;
+  border-color: var(--accent) !important;
+  color: var(--text-bright) !important;
+  box-shadow: 0 0 12px rgba(57, 132, 255, 0.3) !important;
+}
+
+.copilotKitMessage button svg { color: #5c6b85; }
+.copilotKitMessage button:hover svg { color: var(--accent); }
+
+/* Markdown 表格深色化 */
+.copilotKitAssistantMessage table {
+  background: #0b0e14 !important;
+  color: #c7d3e8 !important;
+  border-color: #1e2c45 !important;
+  width: 100% !important;
+  word-break: break-word !important;
+}
+.copilotKitAssistantMessage table tr th,
+.copilotKitAssistantMessage table thead th,
+.copilotKitAssistantMessage table tr:first-child td {
+  background: #122038 !important;
+  color: #7db0ff !important;
+  border-color: #1e2c45 !important;
+}
+.copilotKitAssistantMessage table td {
+  border-color: #1e2c45 !important;
+  color: #c7d3e8 !important;
+  background: #0b0e14 !important;
+  word-break: break-word !important;
+}
+
+/* 浅色兜底 */
+.copilotKitChat [class*="bg-white"],
+.copilotKitChat [class*="bg-neutral"],
+.copilotKitChat [class*="bg-gray"],
+[class*="bg-white"],
+[class*="bg-neutral-50"],
+[class*="bg-gray-50"] {
+  background: #0b0e14 !important;
+  color: #a1aec2 !important;
+}
+
+.copilotKitChat [class*="ToolCall"],
+.copilotKitChat [class*="toolCall"] {
+  background: transparent;
+}
+.copilotKitChat [data-testid="copilot-chat"] [class*="cursor"],
+.copilotKitChat [class*="Cursor"] {
+  color: var(--cyan);
+}
+.copilotKitMessages::-webkit-scrollbar,
+.cpk\:overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* 消息内可点击 IP */
+.ck-ip-link {
+  background: rgba(57, 132, 255, 0.12);
+  border: 1px solid rgba(57, 132, 255, 0.45);
+  color: #7db0ff;
+  padding: 0 5px;
+  margin: 0 1px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.92em;
+  cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.ck-ip-link:hover {
+  background: rgba(57, 132, 255, 0.28);
+  box-shadow: 0 0 9px rgba(57, 132, 255, 0.45);
+  color: #cfe0ff;
+}
+
+/* 回复下方建议动作按钮组 */
+.ck-followups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 4px;
+}
+.ck-followup-btn {
+  font-family: "IBM Plex Mono", "Noto Sans SC", monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 7px 12px;
+  cursor: pointer;
+  color: var(--text);
+  background: rgba(11, 16, 25, 0.85);
+  border: 1px solid #294a79;
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+  transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.ck-followup-btn.primary {
+  color: #dcebff;
+  border-color: rgba(57, 132, 255, 0.7);
+  background: linear-gradient(180deg, rgba(57, 132, 255, 0.28), rgba(23, 52, 96, 0.5));
+}
+.ck-followup-btn:hover {
+  border-color: var(--accent) !important;
+  color: var(--text-bright) !important;
+  box-shadow: 0 0 12px rgba(57, 132, 255, 0.3);
+}
+
+/* Artifact 卡片（兼容旧类名） */
+.ck-artifact-card {
+  background: linear-gradient(180deg, rgba(15, 22, 37, 0.92), rgba(8, 12, 20, 0.96));
+  border: 1px solid #14233c;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+.ck-artifact-head {
+  background: linear-gradient(90deg, rgba(30, 52, 90, 0.55), rgba(11, 17, 28, 0.4));
+  border-bottom: 1px solid #16263f;
+  padding: 9px 12px;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: var(--accent);
+  font-family: "IBM Plex Mono", monospace;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-transform: uppercase;
+}
+.ck-artifact-body {
+  padding: 12px;
+}
+
+/* 旧动画名兼容 */
+.ck-caret {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: var(--cyan);
+  animation: hud-blink 0.8s infinite;
+  vertical-align: -2px;
+}
+@keyframes ck-slow-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* ============================================================
+   Popup / Sidebar 浮窗与悬浮球深色化（辅助形态页）
+   ============================================================ */
+.copilotKitWindow,
+.copilotKitPopup,
+.copilotKitSidebar,
+.copilotKitSidebar [class*="bg-background"] {
+  background:
+    radial-gradient(560px 300px at 6% -8%, rgba(57, 132, 255, 0.1), transparent 60%),
+    #06080c !important;
+  color: #e8eefc !important;
+  --background: #06080c !important;
+  --foreground: #e8eefc !important;
+  --card: #0b0e14 !important;
+  --popover: #0b1220 !important;
+  --border: #1e2c45 !important;
+  --muted: #5c6b85 !important;
+  --primary: #3984ff !important;
+}
+.copilotKitPopup,
+.copilotKitWindow {
+  border: 1px solid #1e2c45 !important;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.75), 0 0 34px rgba(57, 132, 255, 0.16) !important;
+}
+.copilotKitSidebar {
+  border-left: 1px solid #1e2c45 !important;
+  box-shadow: -18px 0 60px rgba(0, 0, 0, 0.55) !important;
+}
+.copilotKitHeader {
+  background: linear-gradient(180deg, rgba(15, 23, 39, 0.96), rgba(10, 14, 22, 0.96)) !important;
+  border-bottom: 1px solid #16263f !important;
+  color: #dbeaff !important;
+  font-family: "IBM Plex Mono", "Noto Sans SC", monospace !important;
+  letter-spacing: 1.5px;
+}
+.copilotKitHeader button {
+  color: #9fb0cc !important;
+  background: transparent !important;
+}
+.copilotKitHeader button:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+/* 右下角悬浮球 */
+.copilotKitButton,
+[data-testid="copilot-chat-toggle"] {
+  background: linear-gradient(140deg, #17325e, #0a1424) !important;
+  border: 1px solid #2f5690 !important;
+  color: #aee9ff !important;
+  box-shadow: 0 0 22px rgba(57, 132, 255, 0.45), inset 0 0 10px rgba(57, 132, 255, 0.22) !important;
+}
+.copilotKitButton:hover,
+[data-testid="copilot-chat-toggle"]:hover {
+  background: linear-gradient(140deg, #1d3f76, #0e1c33) !important;
+  box-shadow: 0 0 30px rgba(57, 132, 255, 0.65), inset 0 0 12px rgba(57, 132, 255, 0.3) !important;
+}
+.copilotKitButton svg,
+[data-testid="copilot-chat-toggle"] svg {
+  color: #aee9ff !important;
+}
+
+/* 浮窗内欢迎语容器 */
+.copilotKitWindow [class*="Welcome"],
+.copilotKitSidebar [class*="Welcome"] {
+  background: transparent !important;
+  color: #e8eefc !important;
+}
+
+/* ============================================================
+   通用浮层：tooltip / 下拉菜单 / slash 命令菜单 深色化
+   ============================================================ */
+[data-slot="tooltip-content"],
+[role="tooltip"] {
+  background: #0b1220 !important;
+  color: #cfe0ff !important;
+  border: 1px solid #294a79 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 14px rgba(57, 132, 255, 0.18) !important;
+  font-family: "IBM Plex Mono", "Noto Sans SC", monospace !important;
+  font-size: 11px !important;
+}
+[data-slot="dropdown-menu-content"],
+[data-testid="copilot-slash-menu"],
+[role="menu"] {
+  background: rgba(9, 14, 23, 0.97) !important;
+  border: 1px solid #1e2c45 !important;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.65), 0 0 22px rgba(57, 132, 255, 0.12) !important;
+  backdrop-filter: blur(6px);
+  color: #c3d0e6 !important;
+}
+[data-slot="dropdown-menu-item"],
+[role="menuitem"] {
+  color: #c3d0e6 !important;
+}
+[data-slot="dropdown-menu-item"]:hover,
+[role="menuitem"]:hover,
+[data-slot="dropdown-menu-item"][data-highlighted],
+[role="menuitem"][data-highlighted] {
+  background: rgba(57, 132, 255, 0.16) !important;
+  color: #e8eefc !important;
+}
+[data-slot="dropdown-menu-label"] {
+  color: #5c6b85 !important;
+}
+[data-slot="dropdown-menu-separator"] {
+  background: #16263f !important;
+}
