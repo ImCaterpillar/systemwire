@@ -1,5 +1,8 @@
 # SYSTEMWIRE・内网安全智能体平台（AI Security Agent Demo）
 
+[![CI](https://github.com/ImCaterpillar/systemwire/actions/workflows/ci.yml/badge.svg)](https://github.com/ImCaterpillar/systemwire/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-37e4d4.svg)](LICENSE)
+
 对话驱动的内网安全智能体演示：Agent 为主体（Codex / Claude Code 式对话形态），
 三栏 SOC 大屏风格控制台，基于 **CopilotKit 1.73（React 19 / Next.js 15 App Router）** 构建。
 
