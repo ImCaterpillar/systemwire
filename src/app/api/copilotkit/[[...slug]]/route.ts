@@ -12,7 +12,7 @@ import {
   MAX_DEPLOYMENTS_PER_NODE,
 } from "../../../../lib/mock-data";
 import type { HoneypotType } from "../../../../lib/mock-data";
-import { createScriptedFetch, setEngine, setAuthMode, setAutoApproveTypes, type Engine } from "../../../../lib/mock-engine";
+import { createScriptedFetch, setEngine, setAuthMode, setAutoApproveTypes } from "../../../../lib/mock-engine";
 
 process.env.COPILOTKIT_TELEMETRY_DISABLED = "true";
 

@@ -500,7 +500,8 @@ export const MOCK_ENTITIES: Entity[] = [
 
 // ================= 二期：审批状态类型（前端 HITL 用） =================
 
-export type ApprovalStrategy = "alt-port" | "stop-service" | "reverse-proxy" | "other-node";
+// "direct" = 无端口冲突时使用标准端口直挂（见 ApprovalCard.buildOptions 与 route.ts 的 strategy 枚举）
+export type ApprovalStrategy = "direct" | "alt-port" | "stop-service" | "reverse-proxy" | "other-node";
 
 export interface ApprovalOption {
   id: ApprovalStrategy;

@@ -313,14 +313,6 @@ export function plan(messages: OAIMessage[]): Plan {
     }
 
     if (lastName === "deployHoneypot") {
-      const deployCalls = assistantToolCalls.filter((c) => c.function.name === "deployHoneypot");
-      const parsed = deployCalls.map((c) => {
-        try {
-          return JSON.parse(c.function.arguments) as { ip?: string; type?: HoneypotType };
-        } catch {
-          return {};
-        }
-      });
       const results = toolResults
         .map((m) => {
           try {

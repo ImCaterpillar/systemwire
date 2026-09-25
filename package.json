@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "test": "vitest",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage"
   },
@@ -34,6 +36,7 @@
     "zod": "^3.25.75"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.0.0",
     "@tailwindcss/postcss": "^4",
     "@types/better-sqlite3": "^7.6.13",
     "@types/cors": "^2.8.17",
@@ -41,6 +44,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "eslint": "^9.37.0",
+    "eslint-config-next": "^15.5.5",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^3.2.3"

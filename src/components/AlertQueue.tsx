@@ -15,13 +15,6 @@ const SEV_COLOR: Record<AlertSeverity, string> = {
   medium: "#a78bfa",
   low: "#34d399",
 };
-const SEV_LABEL: Record<AlertSeverity, string> = {
-  critical: "严重",
-  high: "高危",
-  medium: "中",
-  low: "低",
-};
-
 const STATUS_COLOR: Record<AlertStatus, string> = {
   待研判: "#f59e0b",
   研判中: "#3984ff",

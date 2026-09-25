@@ -12,8 +12,79 @@ import {
   setCurrentAlertId, setAlertStatus, removeDeployment, pushActivity,
 } from "../lib/app-store";
 import { HONEYPOT_TEMPLATES } from "../lib/mock-data";
-import type { Asset, Link, HoneypotType } from "../lib/mock-data";
+import type { Asset, Link, HoneypotType, TraceLayer } from "../lib/mock-data";
 import { Tag, CountUp, CornerFrame } from "./hud";
+
+// ---------- 工具返回载荷类型 ----------
+// 由服务端 route.ts 的工具 execute 生成、经 JSON 序列化后传回前端。
+// 这里按各组件实际读取的字段声明，避免用 any 让类型检查失效。
+
+/** scanAsset 返回：内网体检结果 */
+interface ScanResult {
+  cidr?: string;
+  replay?: boolean;
+  total: number;
+  risky: number;
+  low?: number;
+  assets: Asset[];
+  links: Link[];
+}
+
+/** deployHoneypot 返回：部署预检明细 */
+interface DeployCheck {
+  label: string;
+  status: string;
+  msg: string;
+}
+
+/** deployHoneypot 返回：成功时为部署结果；被阻断时仅有 error 字段（组件会先判 error 提前返回） */
+interface DeployResult {
+  error?: string;
+  name?: string;
+  ip: string;
+  type: HoneypotType;
+  port: number;
+  preflight?: string;
+  strategy?: string | null;
+  advice?: string;
+  checks?: DeployCheck[];
+}
+
+/** traceAttack 返回：告警摘要（组件只读取这些字段） */
+interface TraceAlertBrief {
+  id?: string;
+  title?: string;
+  severity?: string;
+  decoyType?: string;
+  decoyName?: string;
+  decoyIp?: string;
+  time?: string;
+  behavior?: string[];
+}
+
+/** traceAttack 返回：{ alertId, ...TraceData }，同时作为 AttackGraph 的 result 入参 */
+interface TraceResult {
+  alert?: TraceAlertBrief;
+  alertId?: string;
+  layers?: TraceLayer[];
+  chain?: string[];
+  riskFactors?: { label: string; score: number; color: string }[];
+  verdict?: { confidence: number; summary: string };
+  replay?: boolean;
+}
+
+/** removeHoneypot 返回：卸载结果；被阻断时仅有 error 字段 */
+interface UndeployResult {
+  error?: string;
+  name?: string;
+  ip?: string;
+  type?: HoneypotType;
+  port?: number;
+  removed?: { type: HoneypotType; port: number }[];
+  releasedPorts?: number[];
+  archivedLogs?: number;
+  warning?: string;
+}
 
 // ---------- 通用卡片壳 ----------
 export function ArtifactShell({
@@ -42,7 +113,7 @@ function ActionBtn({ label, onClick, primary, danger }: { label: string; onClick
 }
 
 // ---------- 1. 扫描 Artifact ----------
-export function ScanArtifact({ result }: { result: any }) {
+export function ScanArtifact({ result }: { result: ScanResult }) {
   const s = useAppState();
   const [done, setDone] = useState(false);
 
@@ -151,7 +222,7 @@ function stageOf(p: number): number {
   return 3;
 }
 
-export function DeployArtifact({ result }: { result: any }) {
+export function DeployArtifact({ result }: { result: DeployResult }) {
   const s = useAppState();
   const [progress, setProgress] = useState(0);
   const doneRef = useRef(false);
@@ -283,7 +354,7 @@ function ProgressRing({ progress, color }: { progress: number; color: string }) 
 }
 
 // ---------- 3. 溯源 Artifact ----------
-export function TraceArtifact({ result }: { result: any }) {
+export function TraceArtifact({ result }: { result: TraceResult }) {
   const s = useAppState();
   const alert = result?.alert;
   const alertId: string | null = result?.alertId ?? result?.alert?.id ?? null;
@@ -339,7 +410,7 @@ export function TraceArtifact({ result }: { result: any }) {
               const benign = typeof conf === "number" && conf < 40;
               pushActivity(
                 benign ? `溯源完成 · 判定良性（置信度 ${conf ?? "--"}%）` : `溯源完成 · 攻击研判置信度 ${conf ?? "--"}%`,
-                benign ? "green" : conf >= 80 ? "red" : "amber",
+                benign ? "green" : (conf ?? 0) >= 80 ? "red" : "amber",
               );
             }
           }}
@@ -350,7 +421,7 @@ export function TraceArtifact({ result }: { result: any }) {
 }
 
 // ---------- 4. 蜜点卸载 Artifact ----------
-export function UndeployArtifact({ result }: { result: any }) {
+export function UndeployArtifact({ result }: { result: UndeployResult }) {
   const [p, setP] = useState(100);
   const doneRef = useRef(false);
 

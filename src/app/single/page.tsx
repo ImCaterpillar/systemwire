@@ -3,6 +3,7 @@
 import { CopilotChat } from "@copilotkit/react-core/v2";
 import { AuxProvider } from "../../components/aux-shell";
 import { securityLabels } from "../../components/security-copilot";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -41,9 +42,9 @@ export default function SingleEndpointDemo() {
             <div className="hud-kicker" style={{ color: "#5b9bff" }}>EMBEDDED AGENT TERMINAL</div>
           </div>
           <span style={{ flex: 1 }} />
-          <a href="/" style={{ fontSize: 11, color: "#7db0ff", textDecoration: "none", fontFamily: "'IBM Plex Mono',monospace", border: "1px solid #294a79", padding: "5px 12px" }}>
+          <Link href="/" style={{ fontSize: 11, color: "#7db0ff", textDecoration: "none", fontFamily: "'IBM Plex Mono',monospace", border: "1px solid #294a79", padding: "5px 12px" }}>
             ← 返回作战控制台
-          </a>
+          </Link>
         </header>
         <div style={{ flex: 1, minHeight: 0, padding: "0 20px 14px", display: "flex", justifyContent: "center" }}>
           <div style={{ width: "100%", maxWidth: 880, minHeight: 0, display: "flex", flexDirection: "column" }}>

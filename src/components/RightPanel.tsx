@@ -34,13 +34,6 @@ function shortId(id: string): string {
   return id.split("-").slice(-2).join("-");
 }
 
-const STATUS_COLOR: Record<AlertStatus, string> = {
-  待研判: "#f59e0b",
-  研判中: "#3984ff",
-  已闭环: "#34d399",
-  误报: "#5c6b85",
-};
-
 /** 只把 IP 填入输入框草稿，不发送。
  *  TODO: chat-actions 后续新增 fillInputOnly(text) 后，替换为该函数。 */
 function fillDraft(text: string) {
@@ -238,7 +231,6 @@ export default function RightPanel() {
   const deployedHosts = new Set(s.deployments.map((d) => d.ip)).size;
   const todayAlerts = ALERT_TREND_14D[ALERT_TREND_14D.length - 1]?.count ?? 0;
   const highAssets = MOCK_ASSETS.filter((a) => a.risk === "high").length;
-  const lowAssets = MOCK_ASSETS.filter((a) => a.risk === "low").length;
   const deployableHosts = MOCK_ASSETS.filter((a) => isHostSupported(a) || a.type === "monitor").length;
 
   const meta = {
@@ -698,7 +690,6 @@ function DeceptionPanel() {
 }
 
 function TargetConsole({ asset }: { asset: Asset }) {
-  const s = useAppState();
   const supportedAll = isHostSupported(asset) || asset.type === "monitor";
   const existing = deploymentsOf(asset.ip);
   const reachedCap = existing.length >= MAX_DEPLOYMENTS_PER_NODE;

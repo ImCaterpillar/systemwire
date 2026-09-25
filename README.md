@@ -66,7 +66,7 @@ pnpm dev
 
 ### DeepSeek 配置（可选）
 
-在项目根目录 `.env.local` 配置：
+在项目根目录 `.env.local` 配置（可先复制 `.env.example`）：
 
 ```
 DEEPSEEK_API_KEY=sk-...
@@ -113,8 +113,12 @@ DEEPSEEK_MODEL=deepseek-chat
 ## 质量门
 
 ```bash
-node node_modules/vitest/vitest.mjs run   # 50 个用例：意图路由 / 审批两阶段 /
-                                          # 多告警溯源 / 自动批准 / 可行性规则 / 建议引擎
-node node_modules/typescript/bin/tsc --noEmit   # 类型检查
-node node_modules/next/dist/bin/next build      # 生产构建（10 路由）
+pnpm run typecheck   # tsc --noEmit，类型检查
+pnpm run lint        # ESLint（eslint.config.mjs：next/core-web-vitals + next/typescript）
+pnpm test            # vitest run：50 个用例，涵盖意图路由 / 审批两阶段 /
+                     # 多告警溯源 / 自动批准 / 可行性规则 / 建议引擎
+pnpm run build       # next build：生产构建（10 路由）
 ```
+
+以上命令与 `pnpm install --frozen-lockfile` 已写入 `.github/workflows/ci.yml`，
+每次 push 到 `main` 或提交 PR 时自动执行。

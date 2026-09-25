@@ -170,7 +170,6 @@ export function ApprovalCard(props: ApprovalRenderProps) {
       approve: () => approveRef.current(recommendedIdx),
       reject: () => rejectRef.current(),
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, mode, ip, type, recommendedIdx]);
 
   // 已授权自动批准该类型：短暂展示后自动执行推荐方案
@@ -181,7 +180,6 @@ export function ApprovalCard(props: ApprovalRenderProps) {
     setAutoNote(true);
     const t = setTimeout(() => { approveRef.current(recommendedIdx); }, 1100);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, mode, type, autoApproveTypes, recommendedIdx]);
 
   // ---------- InProgress ----------
